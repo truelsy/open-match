@@ -259,26 +259,36 @@ deploy-nbanow:
 delete-swarm:
 	docker stack rm $(NAMESPACE)
 
+NBANOW_IMAGES = frontend backend query synchronizer grafana prometheus nbanow-evaluator nbanow-director nbanow-matchfunction
 
-#######################################
-## push-images / push-<image name>-image: builds and pushes images to your
-## container registry.
-##
-push-images: $(foreach IMAGE,$(IMAGES),push-$(IMAGE)-image)
-
-$(foreach IMAGE,$(IMAGES),push-$(IMAGE)-image): push-%-image: build-%-image docker
-	docker push $(REGISTRY)/openmatch-$*:$(TAG)
+push-tripples-image: $(foreach IMAGE,$(NBANOW_IMAGES),push-$(IMAGE)-image)
+$(foreach IMAGE,$(NBANOW_IMAGES),push-$(IMAGE)-image): push-%-image:
 	docker push $(REGISTRY)/openmatch-$*:$(ALTERNATE_TAG)
-ifeq ($(_GCB_POST_SUBMIT),1)
-	docker tag $(REGISTRY)/openmatch-$*:$(TAG) $(REGISTRY)/openmatch-$*:$(VERSIONED_CANARY_TAG)
-	docker push $(REGISTRY)/openmatch-$*:$(VERSIONED_CANARY_TAG)
-ifeq ($(BASE_VERSION),0.0.0-dev)
-	docker tag $(REGISTRY)/openmatch-$*:$(TAG) $(REGISTRY)/openmatch-$*:$(DATED_CANARY_TAG)
-	docker push $(REGISTRY)/openmatch-$*:$(DATED_CANARY_TAG)
-	docker tag $(REGISTRY)/openmatch-$*:$(TAG) $(REGISTRY)/openmatch-$*:$(CANARY_TAG)
-	docker push $(REGISTRY)/openmatch-$*:$(CANARY_TAG)
-endif
-endif
+
+pull-tripples-image: $(foreach IMAGE,$(NBANOW_IMAGES),pull-$(IMAGE)-image)
+$(foreach IMAGE,$(NBANOW_IMAGES),pull-$(IMAGE)-image): pull-%-image:
+	docker pull $(REGISTRY)/openmatch-$*:$(ALTERNATE_TAG)
+
+
+########################################
+### push-images / push-<image name>-image: builds and pushes images to your
+### container registry.
+###
+#push-images: $(foreach IMAGE,$(IMAGES),push-$(IMAGE)-image)
+#
+#$(foreach IMAGE,$(IMAGES),push-$(IMAGE)-image): push-%-image: build-%-image docker
+#	docker push $(REGISTRY)/openmatch-$*:$(TAG)
+#	docker push $(REGISTRY)/openmatch-$*:$(ALTERNATE_TAG)
+#ifeq ($(_GCB_POST_SUBMIT),1)
+#	docker tag $(REGISTRY)/openmatch-$*:$(TAG) $(REGISTRY)/openmatch-$*:$(VERSIONED_CANARY_TAG)
+#	docker push $(REGISTRY)/openmatch-$*:$(VERSIONED_CANARY_TAG)
+#ifeq ($(BASE_VERSION),0.0.0-dev)
+#	docker tag $(REGISTRY)/openmatch-$*:$(TAG) $(REGISTRY)/openmatch-$*:$(DATED_CANARY_TAG)
+#	docker push $(REGISTRY)/openmatch-$*:$(DATED_CANARY_TAG)
+#	docker tag $(REGISTRY)/openmatch-$*:$(TAG) $(REGISTRY)/openmatch-$*:$(CANARY_TAG)
+#	docker push $(REGISTRY)/openmatch-$*:$(CANARY_TAG)
+#endif
+#endif
 
 #######################################
 ## retag-images / retag-<image name>-image: publishes images on the public
