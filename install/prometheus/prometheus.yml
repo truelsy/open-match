@@ -1,0 +1,55 @@
+global:
+  evaluation_interval: 1m
+  scrape_interval: 1m
+  scrape_timeout: 10s
+rule_files:
+  - /etc/config/rules
+  - /etc/config/alerts
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets:
+          - localhost:9090
+
+  - job_name: 'om-frontend'
+    dns_sd_configs:
+      - names:
+          - 'tasks.om-frontend'
+        type: 'A'
+        port: 48104
+  - job_name: 'om-backend'
+    dns_sd_configs:
+      - names:
+          - 'tasks.om-backend'
+        type: 'A'
+        port: 48105
+  - job_name: 'om-redis'
+    dns_sd_configs:
+      - names:
+          - 'tasks.om-redis-exporter'
+        type: 'A'
+        port: 9121
+  - job_name: 'om-query'
+    dns_sd_configs:
+      - names:
+          - 'tasks.om-query'
+        type: 'A'
+        port: 48103
+  - job_name: 'om-synchronizer'
+    dns_sd_configs:
+      - names:
+          - 'tasks.om-synchronizer'
+        type: 'A'
+        port: 48106
+  - job_name: 'om-evaluator'
+    dns_sd_configs:
+      - names:
+          - 'tasks.om-evaluator'
+        type: 'A'
+        port: 48108
+  - job_name: 'om-director'
+    dns_sd_configs:
+      - names:
+          - 'tasks.om-director'
+        type: 'A'
+        port: 48109

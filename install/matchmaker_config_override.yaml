@@ -1,0 +1,24 @@
+redis:
+  # Open Match's default Redis setups
+#  hostname: 10.10.14.74
+#  hostname: 127.0.0.1
+  hostname: om-redis
+  port: 6379
+  user:
+  usePassword: false
+  passwordPath: /opt/bitnami/redis/secrets/redis-password
+  pool:
+    maxIdle: 200
+    maxActive: 0
+    idleTimeout: 0
+    healthCheckTimeout: 300ms
+
+api:
+  evaluator:
+    hostname: "tasks.om-evaluator"
+    grpcport: "47108"
+    httpport: "48108"
+  director:
+    hostname: "tasks.om-director"
+    grpcport: "47109"
+    httpport: "48109"

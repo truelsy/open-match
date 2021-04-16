@@ -1,0 +1,104 @@
+# Length of time between first fetch matches call, and when no further fetch
+# matches calls will join the current evaluation/synchronization cycle,
+# instead waiting for the next cycle.
+registrationInterval: 250ms
+# Length of time after match function as started before it will be canceled,
+# and evaluator call input is EOF.
+proposalCollectionInterval: 20s
+# Time after a ticket has been returned from fetch matches (marked as pending)
+# before it automatically becomes active again and will be returned by query
+# calls.
+pendingReleaseTimeout: 1m
+# Time after a ticket has been assigned before it is automatically delted.
+assignedDeleteTimeout: 10m
+# Maximum number of tickets to return on a single QueryTicketsResponse.
+queryPageSize: 10000
+
+
+logging:
+  level: info
+  format: text
+  rpc: false
+# Open Match applies the exponential backoff strategy for its retryable gRPC calls.
+# The settings below are the default backoff configuration used in Open Match.
+# See https://github.com/cenkalti/backoff/blob/v3/exponential.go for detailed explanations
+backoff:
+  # The initial retry interval (in milliseconds)
+  initialInterval: 100ms
+  # maxInterval caps the maximum time elapsed for a retry interval
+  maxInterval: 500ms
+  # The next retry interval is multiplied by this multiplier
+  multiplier: 1.5
+  # Randomize the retry interval
+  randFactor: 0.5
+  # maxElapsedTime caps the retry time (in milliseconds)
+  maxElapsedTime: 3000ms
+
+api:
+  backend:
+    hostname: "tasks.om-backend"
+    grpcport: "47105"
+    httpport: "48105"
+  frontend:
+    hostname: "tasks.om-frontend"
+    grpcport: "47104"
+    httpport: "48104"
+  query:
+    hostname: "tasks.om-query"
+    grpcport: "47103"
+    httpport: "48103"
+  synchronizer:
+    hostname: "tasks.om-synchronizer"
+    grpcport: "47106"
+    httpport: "48106"
+#  swaggerui:
+#    hostname: "tasks.om-swaggerui"
+#    httpport: "51500"
+  evaluator:
+    hostname: "tasks.om-evaluator"
+    grpcport: "47108"
+    httpport: "48108"
+  director:
+    hostname: "tasks.om-director"
+    grpcport: "47109"
+    httpport: "48109"
+
+  # Configurations for api.test and api.scale are used for testing.
+#  test:
+#    hostname: "test"
+#    grpcport: "50509"
+#    httpport: "51509"
+
+director:
+  serverList:
+    timeoutTick: 10
+    timeoutSeconds: 30
+scenario:
+  battle:
+    modes:
+      - "arena"
+      - "friendly"
+  minPool: 1
+  maxPool: 81
+#  regions:
+#    - "kr"  # 아시아
+#    - "us"  # 미국
+#    - "eu"  # 유럽
+
+telemetry:
+  reportingPeriod: "1m"
+  traceSamplingFraction: "0.01"
+  zpages:
+    enable: "true"
+  jaeger:
+    enable: "false"
+    agentEndpoint: "open-match-jaeger-agent:6831"
+    collectorEndpoint: "http://open-match-jaeger-collector:14268/api/traces"
+  prometheus:
+    enable: "true"
+    endpoint: "/metrics"
+    serviceDiscovery: "true"
+  stackdriverMetrics:
+    enable: "false"
+    gcpProjectId: "replace_with_your_project_id"
+    prefix: "open_match"

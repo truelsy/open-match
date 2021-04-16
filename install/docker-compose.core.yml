@@ -1,0 +1,96 @@
+version: '3.7'
+
+networks:
+  om-back:
+    driver: overlay
+  om-front:
+    driver: overlay
+
+services:
+  om-backend:
+    image: gcr.io/gv-ns-studio/openmatch-backend:1.1.0
+    networks:
+      - om-back
+      - om-front
+    ports:
+      - 48105:48105
+      - 47105:47105
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+#    deploy:
+#      mode: replicated
+#      replicas: 2
+#      endpoint_mode: vip
+  om-frontend:
+    image: gcr.io/gv-ns-studio/openmatch-frontend:1.1.0
+    networks:
+      - om-back
+      - om-front
+    ports:
+      - 48104:48104
+      - 47104:47104
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+#    deploy:
+#      mode: replicated
+#      replicas: 2
+#      endpoint_mode: vip
+  om-query:
+    image: gcr.io/gv-ns-studio/openmatch-query:1.1.0
+    networks:
+      - om-back
+    ports:
+      - 48103:48103
+      - 47103:47103
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+  om-synchronizer:
+    image: gcr.io/gv-ns-studio/openmatch-synchronizer:1.1.0
+    networks:
+      - om-back
+    ports:
+      - 48106:48106
+      - 47106:47106
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+#  om-evaluator:
+#    image: gcr.io/gv-ns-studio/openmatch-default-evaluator:1.1.0
+#    networks:
+#      - om-back
+#    ports:
+#      - 47108:47108
+#      - 48108:48108
+#    logging:
+#      driver: "json-file"
+#      options:
+#        max-size: "10m"
+#        max-file: "3"
+  om-swaggerui:
+    image: gcr.io/gv-ns-studio/openmatch-swaggerui:1.1.0
+    networks:
+      - om-back
+      - om-front
+    ports:
+      - 51500:51500
+  om-redis:
+#    image: docker.io/bitnami/redis:5.0.5-debian-9-r169
+    image: redis
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - REDIS_PORT=6379
+    networks:
+      - om-back
+    ports:
+      - 6379:6379
