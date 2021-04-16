@@ -261,11 +261,11 @@ delete-swarm:
 
 NBANOW_IMAGES = frontend backend query synchronizer grafana prometheus nbanow-evaluator nbanow-director nbanow-matchfunction
 
-push-tripples-image: $(foreach IMAGE,$(NBANOW_IMAGES),push-$(IMAGE)-image)
+push-nbanow-image: $(foreach IMAGE,$(NBANOW_IMAGES),push-$(IMAGE)-image)
 $(foreach IMAGE,$(NBANOW_IMAGES),push-$(IMAGE)-image): push-%-image:
 	docker push $(REGISTRY)/openmatch-$*:$(ALTERNATE_TAG)
 
-pull-tripples-image: $(foreach IMAGE,$(NBANOW_IMAGES),pull-$(IMAGE)-image)
+pull-nbanow-image: $(foreach IMAGE,$(NBANOW_IMAGES),pull-$(IMAGE)-image)
 $(foreach IMAGE,$(NBANOW_IMAGES),pull-$(IMAGE)-image): pull-%-image:
 	docker pull $(REGISTRY)/openmatch-$*:$(ALTERNATE_TAG)
 
