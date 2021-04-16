@@ -1,0 +1,39 @@
+version: '3.7'
+
+services:
+  om-director:
+    image: 172.16.1.13:5000/gv-ns-studio/openmatch-nbanow-director:1.1.0
+    networks:
+      - om-front
+    ports:
+      - 48109:48109
+      - 47109:47109
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+  om-function:
+    image: 172.16.1.13:5000/gv-ns-studio/openmatch-nbanow-matchfunction:1.1.0
+    networks:
+      - om-back
+    ports:
+      - 48102:48102
+      - 47102:47102
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+  om-evaluator:
+    image: 172.16.1.13:5000/gv-ns-studio/openmatch-nbanow-evaluator:1.1.0
+    networks:
+      - om-back
+    ports:
+      - 48108:48108
+      - 47108:47108
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

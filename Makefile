@@ -247,6 +247,9 @@ deploy-core:
 deploy-nbanow:
 	(cd install/; docker stack deploy -c docker-compose.core.yml -c docker-compose.nbanow.yml -c docker-compose.telemetry.yml $(NAMESPACE))
 
+deploy-nbanow-dev:
+	(cd install/; docker stack deploy -c docker-compose.core.dev.yml -c docker-compose.nbanow.dev.yml -c docker-compose.telemetry.dev.yml $(NAMESPACE))
+
 #deploy-demo:
 #	(cd install/; docker stack deploy -c docker-compose.core.yml -c docker-compose.demo.yml $(NAMESPACE))
 #
