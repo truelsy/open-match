@@ -36,8 +36,8 @@ var (
 	mSumTicketsReturned  = telemetry.Counter("nbanow_backend_sum_tickets_returned", "tickets in matches returned")
 	mMatchesAssigned     = telemetry.Counter("nbanow_backend_matches_assigned", "matches assigned")
 	mMatchAssignsFailed  = telemetry.Counter("nbanow_backend_match_assigns_failed", "match assigns failed")
-	//mTicketsDeleted      = telemetry.Counter("nbanow_backend_tickets_deleted", "tickets deleted")
-	//mTicketDeletesFailed = telemetry.Counter("nbanow_backend_ticket_deletes_failed", "ticket deletes failed")
+	mTicketsDeleted      = telemetry.Counter("nbanow_backend_tickets_deleted", "tickets deleted")
+	mTicketDeletesFailed = telemetry.Counter("nbanow_backend_ticket_deletes_failed", "ticket deletes failed")
 )
 
 func BindService(p *appmain.Params, b *appmain.Bindings) error {
@@ -47,7 +47,7 @@ func BindService(p *appmain.Params, b *appmain.Bindings) error {
 }
 
 func doRun(cfg config.View, profiles []*pb.MatchProfile) {
-	conn, err := rpc.GRPCClientFromConfig(cfg, "api.backend")
+	beConn, err := rpc.GRPCClientFromConfig(cfg, "api.backend")
 	if err != nil {
 		log.Fatalf("Failed to connect to Open Match Backend, got %s", err)
 	}
@@ -55,13 +55,26 @@ func doRun(cfg config.View, profiles []*pb.MatchProfile) {
 		err := conn.Close()
 		if err != nil {
 		}
-	}(conn)
+	}(beConn)
+	be := pb.NewBackendServiceClient(beConn)
 
-	be := pb.NewBackendServiceClient(conn)
+	// 매칭이 성공된 티켓을 지우기 위해 frontend에 접속
+	feConn, err := rpc.GRPCClientFromConfig(cfg, "api.frontend")
+	if err != nil {
+		logger.Fatalf("failed to connect to Open Match Frontend, got %v", err)
+	}
+	defer func(feConn *grpc.ClientConn) {
+		err := feConn.Close()
+		if err != nil {
+		}
+	}(feConn)
+	fe := pb.NewFrontendServiceClient(feConn)
 
 	matchesForAssignment := make(chan *pb.Match, 30000)
+	ticketsForDeletion := make(chan string, 30000)
 	for i := 0; i < 50; i++ {
-		go doAssignments(be, matchesForAssignment)
+		go doAssignments(be, matchesForAssignment, ticketsForDeletion)
+		go doDeletions(fe, ticketsForDeletion)
 	}
 
 	// Don't go faster than this, as it likely means that FetchMatches is throwing
@@ -128,7 +141,7 @@ func doFetchMatches(be pb.BackendServiceClient, profile *pb.MatchProfile, matche
 	}
 }
 
-func doAssignments(be pb.BackendServiceClient, matchesForAssignment <-chan *pb.Match) {
+func doAssignments(be pb.BackendServiceClient, matchesForAssignment <-chan *pb.Match, ticketsForDeletion chan<- string) {
 	ctx := context.Background()
 	for m := range matchesForAssignment {
 		ticketIds := make([]string, 0)
@@ -160,5 +173,31 @@ func doAssignments(be pb.BackendServiceClient, matchesForAssignment <-chan *pb.M
 
 		telemetry.RecordUnitMeasurement(ctx, mMatchesAssigned)
 		logger.Infof("Assigned server %v to match %v", address, m.GetMatchId())
+
+		// 매칭 완료된 티켓은 삭제
+		for _, ticketId := range ticketIds {
+			ticketsForDeletion <- ticketId
+		}
+	}
+}
+
+func doDeletions(fe pb.FrontendServiceClient, ticketsForDeletion <-chan string) {
+	ctx := context.Background()
+
+	for id := range ticketsForDeletion {
+		if scenarios.ActiveScenario.BackendDeletesTickets {
+			req := &pb.DeleteTicketRequest{
+				TicketId: id,
+			}
+
+			_, err := fe.DeleteTicket(context.Background(), req)
+
+			if err == nil {
+				telemetry.RecordUnitMeasurement(ctx, mTicketsDeleted)
+			} else {
+				telemetry.RecordUnitMeasurement(ctx, mTicketDeletesFailed)
+				logger.WithError(err).Error("failed to delete tickets")
+			}
+		}
 	}
 }

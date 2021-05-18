@@ -32,9 +32,10 @@ type GameScenarios interface {
 var ActiveScenario = func() *Scenario {
 	var gs GameScenarios = battle.Scenario()
 	return &Scenario{
-		Profiles:      gs.Profiles,
-		MatchFunction: queryPoolsWrapper(gs.MatchFunction),
-		Evaluator:     gs.Evaluate,
+		Profiles:              gs.Profiles,
+		MatchFunction:         queryPoolsWrapper(gs.MatchFunction),
+		Evaluator:             gs.Evaluate,
+		BackendDeletesTickets: false,
 	}
 }()
 
@@ -42,9 +43,10 @@ type fnMatch func(*pb.RunRequest, pb.MatchFunction_RunServer) error
 type fnEvaluator func(pb.Evaluator_EvaluateServer) error
 
 type Scenario struct {
-	Profiles      func() []*pb.MatchProfile
-	MatchFunction fnMatch
-	Evaluator     fnEvaluator
+	Profiles              func() []*pb.MatchProfile
+	MatchFunction         fnMatch
+	Evaluator             fnEvaluator
+	BackendDeletesTickets bool
 }
 
 func (m fnMatch) Run(req *pb.RunRequest, server pb.MatchFunction_RunServer) error {
