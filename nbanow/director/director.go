@@ -160,7 +160,7 @@ func doAssignments(be pb.BackendServiceClient, matchesForAssignment <-chan *pb.M
 		}
 
 		// TODO: 실시간서버의 IP로 대체
-		address := fmt.Sprintf("%d.%d.%d.%d:2222", rand.Intn(256), rand.Intn(256), rand.Intn(256), rand.Intn(256))
+		address := fmt.Sprintf("%d.%d.%d.%d:1111", rand.Intn(256), rand.Intn(256), rand.Intn(256), rand.Intn(256))
 
 		// Ticket에 할당할 Assign 정보
 		req := &pb.AssignTicketsRequest{
