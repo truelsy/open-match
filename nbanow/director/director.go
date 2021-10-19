@@ -9,6 +9,7 @@ import (
 	"ns-open-match/internal/appmain"
 	"ns-open-match/internal/config"
 	"ns-open-match/internal/rpc"
+	"ns-open-match/internal/statestore"
 	"ns-open-match/internal/telemetry"
 	scenarios "ns-open-match/nbanow"
 	"ns-open-match/pkg/pb"
@@ -41,6 +42,15 @@ var (
 )
 
 func BindService(p *appmain.Params, b *appmain.Bindings) error {
+	srv := &service{
+		cfg:   p.Config(),
+		store: statestore.New(p.Config()),
+	}
+	b.AddHealthCheckFunc(srv.store.HealthCheck)
+	b.AddHandleFunc(func(s *grpc.Server) {
+		pb.RegisterDirectorServer(s, srv)
+	}, pb.RegisterDirectorHandlerFromEndpoint)
+
 	profiles := scenarios.ActiveScenario.Profiles()
 	go doRun(p.Config(), profiles)
 	return nil
@@ -150,7 +160,7 @@ func doAssignments(be pb.BackendServiceClient, matchesForAssignment <-chan *pb.M
 		}
 
 		// TODO: 실시간서버의 IP로 대체
-		address := fmt.Sprintf("%d.%d.%d.%d:2222", rand.Intn(256), rand.Intn(256), rand.Intn(256), rand.Intn(256))
+		address := fmt.Sprintf("%d.%d.%d.%d:1111", rand.Intn(256), rand.Intn(256), rand.Intn(256), rand.Intn(256))
 
 		// Ticket에 할당할 Assign 정보
 		req := &pb.AssignTicketsRequest{

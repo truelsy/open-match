@@ -1,0 +1,231 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Director",
+    "version": "1.0",
+    "contact": {
+      "name": "Open Match",
+      "url": "https://open-match.dev",
+      "email": "open-match-discuss@googlegroups.com"
+    },
+    "license": {
+      "name": "Apache 2.0 License",
+      "url": "https://github.com/googleforgames/open-match/blob/master/LICENSE"
+    }
+  },
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/director/available": {
+      "post": {
+        "operationId": "AvailableArena",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/openmatchAckAvailableArena"
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/openmatchSynAvailableArena"
+            }
+          }
+        ],
+        "tags": [
+          "Director"
+        ]
+      }
+    },
+    "/v1/director/healthcheck": {
+      "post": {
+        "operationId": "HealthCheckArena",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "properties": {}
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/openmatchSynHealthCheckArena"
+            }
+          }
+        ],
+        "tags": [
+          "Director"
+        ]
+      }
+    },
+    "/v1/director/register": {
+      "post": {
+        "operationId": "RegisterArena",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "properties": {}
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/openmatchSynRegisterArena"
+            }
+          }
+        ],
+        "tags": [
+          "Director"
+        ]
+      }
+    },
+    "/v1/director/terminate": {
+      "post": {
+        "operationId": "TerminateArena",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "properties": {}
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/openmatchSynTerminateArena"
+            }
+          }
+        ],
+        "tags": [
+          "Director"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "openmatchAckAvailableArena": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string"
+        }
+      }
+    },
+    "openmatchSynAvailableArena": {
+      "type": "object",
+      "properties": {
+        "region": {
+          "type": "string"
+        }
+      }
+    },
+    "openmatchSynHealthCheckArena": {
+      "type": "object",
+      "properties": {
+        "region": {
+          "type": "string"
+        },
+        "address": {
+          "type": "string"
+        },
+        "user_count": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "send_time": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
+    },
+    "openmatchSynRegisterArena": {
+      "type": "object",
+      "properties": {
+        "region": {
+          "type": "string"
+        },
+        "address": {
+          "type": "string"
+        },
+        "max_user_count": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "send_time": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
+    },
+    "openmatchSynTerminateArena": {
+      "type": "object",
+      "properties": {
+        "region": {
+          "type": "string"
+        },
+        "address": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "externalDocs": {
+    "description": "Open Match Documentation",
+    "url": "https://open-match.dev/site/docs/"
+  }
+}

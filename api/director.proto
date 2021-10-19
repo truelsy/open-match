@@ -1,0 +1,110 @@
+syntax = "proto3";
+package openmatch;
+option go_package = "ns-open-match/pkg/pb";
+option csharp_namespace = "OpenMatch";
+
+import "google/api/annotations.proto";
+import "protoc-gen-swagger/options/annotations.proto";
+import "google/protobuf/empty.proto";
+
+option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
+  info: {
+    title: "Director"
+    version: "1.0"
+    contact: {
+      name: "Open Match"
+      url: "https://open-match.dev"
+      email: "open-match-discuss@googlegroups.com"
+    }
+    license: {
+      name: "Apache 2.0 License"
+      url: "https://github.com/googleforgames/open-match/blob/master/LICENSE"
+    }
+  }
+  external_docs: {
+    url: "https://open-match.dev/site/docs/"
+    description: "Open Match Documentation"
+  }
+  schemes: HTTP
+  schemes: HTTPS
+  consumes: "application/json"
+  produces: "application/json"
+  responses: {
+    key: "404"
+    value: {
+      description: "Returned when the resource does not exist."
+      schema: { json_schema: { type: STRING } }
+    }
+  }
+  // TODO Add annotations for security_defintiions.
+  // See
+  // https://github.com/grpc-ecosystem/grpc-gateway/blob/master/examples/proto/examplepb/a_bit_of_everything.proto
+};
+
+message SynRegisterArena {
+  string region = 1;
+  string address = 2;
+  int32 max_user_count = 3;
+  int64 send_time = 4;
+}
+
+message SynHealthCheckArena {
+  string region = 1;
+  string address = 2;
+  int32 user_count = 3;
+  int64 send_time = 4;
+}
+
+message SynTerminateArena {
+  string region = 1;
+  string address = 2;
+}
+
+message SynAvailableArena {
+  string region = 1;
+}
+
+message AckAvailableArena {
+  string address = 1;
+}
+
+//message ReservationArenaRequest {
+//  string match_id = 1;
+//}
+//
+//message ReservationArenaResponse {
+//  int32 reservation_id = 1;
+//}
+
+service Director {
+  rpc RegisterArena(SynRegisterArena) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/director/register"
+      body: "*"
+    };
+  }
+  rpc HealthCheckArena(SynHealthCheckArena) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/director/healthcheck"
+      body: "*"
+    };
+  }
+  rpc TerminateArena(SynTerminateArena) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/director/terminate"
+      body: "*"
+    };
+  }
+  rpc AvailableArena(SynAvailableArena) returns (AckAvailableArena) {
+    option (google.api.http) = {
+      post: "/v1/director/available"
+      body: "*"
+    };
+  }
+  //  rpc ReservationArena(stream ReservationArenaRequest) returns (stream ReservationArenaResponse) {
+  //    option (google.api.http) = {
+  //      post: "/v1/director/reservation/arena"
+  //      body: "*"
+  //    };
+  //  }
+}
